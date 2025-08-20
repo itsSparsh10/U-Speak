@@ -1,0 +1,6 @@
+firstName,lastName,email,phoneNumber,department,jobTitle,attribute1Value,attribute2Value,attribute3Value,employeeId,hireDate,isActive
+John,Doe,john.doe@company.com,5551234567,Sales,Sales Representative,North Division,Field Sales,Senior,EMP-001,2025-01-15,true
+Jane,Smith,jane.smith@company.com,5559876543,Marketing,Marketing Manager,East Division,Digital Marketing,Manager,EMP-002,2025-01-20,true
+Mike,Johnson,mike.johnson@company.com,5554567890,Engineering,Software Engineer,West Division,Backend Development,Mid-Level,EMP-003,2025-01-25,true
+Sarah,Williams,sarah.williams@company.com,5557890123,HR,HR Specialist,Central Division,Recruitment,Junior,EMP-004,2025-02-01,true
+David,Brown,david.brown@company.com,5553210987,Finance,Financial Analyst,South Division,Investment Analysis,Senior,EMP-005,2025-02-05,true
