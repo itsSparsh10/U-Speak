@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bulk Upload Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 15px;
+        }
+        .test-header {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-weight: bold;
+            color: #333;
+        }
+        .test-results {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-family: monospace;
+            white-space: pre-wrap;
+        }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+        .warning { color: #ffc107; }
+        .info { color: #17a2b8; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        .csv-preview {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-pending { background-color: #ffc107; }
+        .status-success { background-color: #28a745; }
+        .status-error { background-color: #dc3545; }
+        
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background-color: #007bff;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Bulk Upload Functionality Test</h1>
+        <p>This tool tests the bulk upload functionality by sending test data to the API endpoint.</p>
+        
+        <div class="test-section">
+            <div class="test-header">
+                <span class="status-indicator status-pending" id="status-1"></span>
+                Test 1: API Endpoint Availability
+            </div>
+            <p>Checks if the bulk upload API endpoint is accessible.</p>
+            <button onclick="testAPIEndpoint()" id="btn-1">Run Test 1</button>
+            <div class="test-results" id="results-1"></div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-header">
+                <span class="status-indicator status-pending" id="status-2"></span>
+                Test 2: Valid Employee Data Upload
+            </div>
+            <p>Tests uploading valid employee data to ensure successful processing.</p>
+            <button onclick="testValidDataUpload()" id="btn-2">Run Test 2</button>
+            <div class="test-results" id="results-2"></div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-header">
+                <span class="status-indicator status-pending" id="status-3"></span>
+                Test 3: Invalid Data Handling
+            </div>
+            <p>Tests how the system handles invalid or incomplete employee data.</p>
+            <button onclick="testInvalidDataUpload()" id="btn-3">Run Test 3</button>
+            <div class="test-results" id="results-3"></div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-header">
+                <span class="status-indicator status-pending" id="status-4"></span>
+                Test 4: Mixed Data Upload
+            </div>
+            <p>Tests uploading a mix of valid and invalid employee data.</p>
+            <button onclick="testMixedDataUpload()" id="btn-4">Run Test 4</button>
+            <div class="test-results" id="results-4"></div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-header">
+                <span class="status-indicator status-pending" id="status-5"></span>
+                Test 5: Large Dataset Upload
+            </div>
+            <p>Tests uploading a larger dataset (50 employees) to test performance.</p>
+            <button onclick="testLargeDatasetUpload()" id="btn-5">Run Test 5</button>
+            <div class="test-results" id="results-5"></div>
+        </div>
+
+        <div class="test-section">
+            <div class="test-header">🏃‍♂️ Run All Tests</div>
+            <p>Run all tests in sequence to get a comprehensive overview.</p>
+            <button onclick="runAllTests()" id="btn-all">Run All Tests</button>
+            <div class="progress-bar" style="display: none;" id="progress-container">
+                <div class="progress-fill" id="progress-fill" style="width: 0%;"></div>
+            </div>
+            <div class="test-results" id="results-all"></div>
+        </div>
+    </div>
+
+    <script>
+        // Test data configurations
+        const API_BASE_URL = window.location.origin;
+        
+        const validEmployees = [
+            {
+                firstName: 'Alice',
+                lastName: 'Johnson',
+                email: `alice.johnson.test${Date.now()}@testcompany.com`,
+                phoneNumber: '5551111111',
+                department: 'Engineering',
+                jobTitle: 'Senior Developer',
+                employeeId: `EMP-TEST-001-${Date.now()}`,
+                hireDate: '2025-01-15',
+                isActive: 'true'
+            },
+            {
+                firstName: 'Bob',
+                lastName: 'Wilson',
+                email: `bob.wilson.test${Date.now()}@testcompany.com`,
+                phoneNumber: '5552222222',
+                department: 'Marketing',
+                jobTitle: 'Marketing Specialist',
+                employeeId: `EMP-TEST-002-${Date.now()}`,
+                hireDate: '2025-01-20',
+                isActive: 'true'
+            },
+            {
+                firstName: 'Charlie',
+                lastName: 'Davis',
+                email: `charlie.davis.test${Date.now()}@testcompany.com`,
+                phoneNumber: '5553333333',
+                department: 'Sales',
+                jobTitle: 'Sales Manager',
+                employeeId: `EMP-TEST-003-${Date.now()}`,
+                hireDate: '2025-01-25',
+                isActive: 'true'
+            }
+        ];
+
+        const invalidEmployees = [
+            {
+                firstName: '', // Missing first name
+                lastName: 'InvalidFirst',
+                email: `invalid1.test${Date.now()}@testcompany.com`,
+                phoneNumber: '5556666666',
+                department: 'Test',
+                jobTitle: 'Test Employee',
+                employeeId: `EMP-INVALID-001-${Date.now()}`,
+                hireDate: '2025-01-15',
+                isActive: 'true'
+            },
+            {
+                firstName: 'InvalidEmail',
+                lastName: 'User',
+                email: 'not-a-valid-email', // Invalid email format
+                phoneNumber: '5557777777',
+                department: 'Test',
+                jobTitle: 'Test Employee',
+                employeeId: `EMP-INVALID-002-${Date.now()}`,
+                hireDate: '2025-01-20',
+                isActive: 'true'
+            },
+            {
+                firstName: 'MissingEmail',
+                lastName: 'User',
+                email: '', // Missing email
+                phoneNumber: '5558888888',
+                department: 'Test',
+                jobTitle: 'Test Employee',
+                employeeId: `EMP-INVALID-003-${Date.now()}`,
+                hireDate: '2025-01-25',
+                isActive: 'true'
+            }
+        ];
+
+        // Helper functions
+        function updateStatus(testId, status) {
+            const indicator = document.getElementById(`status-${testId}`);
+            indicator.className = `status-indicator status-${status}`;
+        }
+
+        function logResult(testId, message, type = 'info') {
+            const resultsDiv = document.getElementById(`results-${testId}`);
+            const timestamp = new Date().toLocaleTimeString();
+            const icon = type === 'success' ? '✅' : type === 'error' ? '❌' : type === 'warning' ? '⚠️' : 'ℹ️';
+            resultsDiv.innerHTML += `[${timestamp}] ${icon} ${message}\n`;
+        }
+
+        function clearResults(testId) {
+            document.getElementById(`results-${testId}`).innerHTML = '';
+        }
+
+        function generateLargeDataset(count = 50) {
+            const departments = ['Engineering', 'Marketing', 'Sales', 'HR', 'Finance', 'Operations', 'IT'];
+            const jobTitles = ['Manager', 'Specialist', 'Coordinator', 'Analyst', 'Developer', 'Representative'];
+            const employees = [];
+            
+            for (let i = 1; i <= count; i++) {
+                const timestamp = Date.now();
+                employees.push({
+                    firstName: `TestEmployee${i}`,
+                    lastName: `LastName${i}`,
+                    email: `test.employee${i}.${timestamp}@testcompany.com`,
+                    phoneNumber: `555${String(1000000 + i).slice(-7)}`,
+                    department: departments[i % departments.length],
+                    jobTitle: jobTitles[i % jobTitles.length],
+                    employeeId: `EMP-LARGE-${String(i).padStart(3, '0')}-${timestamp}`,
+                    hireDate: '2025-01-15',
+                    isActive: 'true'
+                });
+            }
+            
+            return employees;
+        }
+
+        // Test functions
+        async function testAPIEndpoint() {
+            const testId = '1';
+            clearResults(testId);
+            updateStatus(testId, 'pending');
+            
+            try {
+                logResult(testId, 'Testing API endpoint availability...');
+                
+                const response = await fetch(`${API_BASE_URL}/api/employees/bulk-upload`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        employees: [],
+                        updateExisting: false
+                    }),
+                });
+
+                if (response.status === 400) {
+                    logResult(testId, 'API endpoint is accessible (returned 400 as expected for empty data)', 'success');
+                    updateStatus(testId, 'success');
+                } else {
+                    logResult(testId, `API endpoint responded with status: ${response.status}`, 'info');
+                    const result = await response.text();
+                    logResult(testId, `Response: ${result.substring(0, 200)}...`, 'info');
+                    updateStatus(testId, 'success');
+                }
+            } catch (error) {
+                logResult(testId, `API endpoint test failed: ${error.message}`, 'error');
+                updateStatus(testId, 'error');
+            }
+        }
+
+        async function testValidDataUpload() {
+            const testId = '2';
+            clearResults(testId);
+            updateStatus(testId, 'pending');
+            
+            try {
+                logResult(testId, `Uploading ${validEmployees.length} valid employees...`);
+                
+                const response = await fetch(`${API_BASE_URL}/api/employees/bulk-upload`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        employees: validEmployees,
+                        updateExisting: false
+                    }),
+                });
+
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    logResult(testId, 'Valid data upload successful!', 'success');
+                    logResult(testId, `Created: ${result.results.created}, Updated: ${result.results.updated}, Failed: ${result.results.failed}`, 'success');
+                    updateStatus(testId, 'success');
+                } else {
+                    logResult(testId, `Upload failed: ${result.error || 'Unknown error'}`, 'error');
+                    logResult(testId, `Response: ${JSON.stringify(result, null, 2)}`, 'error');
+                    updateStatus(testId, 'error');
+                }
+            } catch (error) {
+                logResult(testId, `Test failed: ${error.message}`, 'error');
+                updateStatus(testId, 'error');
+            }
+        }
+
+        async function testInvalidDataUpload() {
+            const testId = '3';
+            clearResults(testId);
+            updateStatus(testId, 'pending');
+            
+            try {
+                logResult(testId, `Uploading ${invalidEmployees.length} invalid employees to test error handling...`);
+                
+                const response = await fetch(`${API_BASE_URL}/api/employees/bulk-upload`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        employees: invalidEmployees,
+                        updateExisting: false
+                    }),
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    logResult(testId, 'Invalid data handling test completed', 'success');
+                    logResult(testId, `Created: ${result.results.created}, Failed: ${result.results.failed}`, 'info');
+                    
+                    if (result.results.errors && result.results.errors.length > 0) {
+                        logResult(testId, 'Errors properly reported:', 'info');
+                        result.results.errors.forEach((error, index) => {
+                            logResult(testId, `  ${index + 1}. ${error}`, 'warning');
+                        });
+                    }
+                    
+                    updateStatus(testId, 'success');
+                } else {
+                    logResult(testId, `Unexpected response: ${result.error || 'Unknown error'}`, 'error');
+                    updateStatus(testId, 'error');
+                }
+            } catch (error) {
+                logResult(testId, `Test failed: ${error.message}`, 'error');
+                updateStatus(testId, 'error');
+            }
+        }
+
+        async function testMixedDataUpload() {
+            const testId = '4';
+            clearResults(testId);
+            updateStatus(testId, 'pending');
+            
+            try {
+                const mixedEmployees = [...validEmployees.slice(0, 2), ...invalidEmployees.slice(0, 2)];
+                logResult(testId, `Uploading ${mixedEmployees.length} mixed (valid/invalid) employees...`);
+                
+                const response = await fetch(`${API_BASE_URL}/api/employees/bulk-upload`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        employees: mixedEmployees,
+                        updateExisting: false
+                    }),
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    logResult(testId, 'Mixed data upload test completed', 'success');
+                    logResult(testId, `Created: ${result.results.created}, Failed: ${result.results.failed}`, 'info');
+                    logResult(testId, `Expected: some successes and some failures`, 'info');
+                    updateStatus(testId, 'success');
+                } else {
+                    logResult(testId, `Unexpected response: ${result.error || 'Unknown error'}`, 'error');
+                    updateStatus(testId, 'error');
+                }
+            } catch (error) {
+                logResult(testId, `Test failed: ${error.message}`, 'error');
+                updateStatus(testId, 'error');
+            }
+        }
+
+        async function testLargeDatasetUpload() {
+            const testId = '5';
+            clearResults(testId);
+            updateStatus(testId, 'pending');
+            
+            try {
+                const largeDataset = generateLargeDataset(50);
+                logResult(testId, `Uploading ${largeDataset.length} employees (performance test)...`);
+                
+                const startTime = Date.now();
+                
+                const response = await fetch(`${API_BASE_URL}/api/employees/bulk-upload`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        employees: largeDataset,
+                        updateExisting: false
+                    }),
+                });
+
+                const endTime = Date.now();
+                const duration = endTime - startTime;
+                
+                const result = await response.json();
+                
+                if (response.ok && result.success) {
+                    logResult(testId, `Large dataset upload completed in ${duration}ms`, 'success');
+                    logResult(testId, `Created: ${result.results.created}, Failed: ${result.results.failed}`, 'success');
+                    logResult(testId, `Performance: ${Math.round(largeDataset.length / (duration / 1000))} employees/second`, 'info');
+                    updateStatus(testId, 'success');
+                } else {
+                    logResult(testId, `Large dataset upload failed: ${result.error || 'Unknown error'}`, 'error');
+                    updateStatus(testId, 'error');
+                }
+            } catch (error) {
+                logResult(testId, `Test failed: ${error.message}`, 'error');
+                updateStatus(testId, 'error');
+            }
+        }
+
+        async function runAllTests() {
+            const progressContainer = document.getElementById('progress-container');
+            const progressFill = document.getElementById('progress-fill');
+            const resultsAll = document.getElementById('results-all');
+            
+            progressContainer.style.display = 'block';
+            resultsAll.innerHTML = '';
+            
+            const tests = [
+                { name: 'API Endpoint Test', func: testAPIEndpoint },
+                { name: 'Valid Data Upload', func: testValidDataUpload },
+                { name: 'Invalid Data Handling', func: testInvalidDataUpload },
+                { name: 'Mixed Data Upload', func: testMixedDataUpload },
+                { name: 'Large Dataset Upload', func: testLargeDatasetUpload }
+            ];
+            
+            logResult('all', 'Starting comprehensive test suite...', 'info');
+            
+            for (let i = 0; i < tests.length; i++) {
+                const test = tests[i];
+                const progress = ((i + 1) / tests.length) * 100;
+                
+                logResult('all', `Running: ${test.name}`, 'info');
+                progressFill.style.width = `${progress}%`;
+                
+                await test.func();
+                await new Promise(resolve => setTimeout(resolve, 1000)); // Small delay between tests
+            }
+            
+            logResult('all', 'All tests completed!', 'success');
+            logResult('all', 'Check individual test results above for details.', 'info');
+        }
+
+        // Auto-run endpoint test on page load
+        window.addEventListener('load', () => {
+            setTimeout(testAPIEndpoint, 1000);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+# Aggregate Report Export
+# Generated: 2025-08-26T09:53:21.975Z
+# Window: 2024-01-01 to 2024-12-31
+# Grouped By: Division
+
+Group Value,Headcount,Average Score,Lessons Completed,Time Spent (minutes),Videos Uploaded,Improvement Delta
+"Sales",1,"N/A",0,0,0,"N/A"
+"Marketing",1,"N/A",0,0,0,"N/A"
+"Engineering",1,"N/A",0,0,0,"N/A"
+"HR",1,"N/A",0,0,0,"N/A"

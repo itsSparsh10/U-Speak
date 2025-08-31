@@ -1,0 +1,40 @@
+🚀 USPEAK PRO - QUICK INSTALL
+==============================
+
+📋 REQUIREMENTS
+---------------
+- Node.js (v18+)
+- MongoDB running
+
+🔧 STEP 1: INSTALL & SETUP
+---------------------------
+npm install
+
+🔑 STEP 2: ENVIRONMENT
+-----------------------
+cp env.example .env.local
+# Edit .env.local with your MongoDB connection
+
+🚀 STEP 3: RUN
+---------------
+npm run dev
+
+🌐 STEP 4: ACCESS
+------------------
+http://localhost:3000/profile
+
+✅ DONE!
+--------
+Your USpeak Pro app is running!
+
+🔍 IF ISSUES
+-------------
+- Check MongoDB is running
+- Verify .env.local has correct MONGODB_URI
+- Kill port: pkill -f "npm run dev"
+
+🎯 COMMANDS
+-----------
+npm install          # Install
+npm run dev          # Start
+npm run build        # Build
